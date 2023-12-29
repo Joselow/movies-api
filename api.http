@@ -1,0 +1,77 @@
+### get all movies
+GET http://localhost:4000/movies
+
+### get movie by id
+GET http://localhost:4000/movies/8a8c5072-a532-11ee-bed6-7085c2b8a4b3
+
+### get movies by gender
+GET http://localhost:4000/movies?gender=Sci-fi
+
+### create a movie
+POST http://localhost:4000/movies
+Content-Type: application/json
+
+{
+  "sql": "owoo",      
+  "title": "Galactic Exploraers",
+  "year": 2023,
+  "director": "Samuel Chang",
+  "duration": 155,
+  "poster": "https://example.com/posters/galactic.jpg",
+  "genre": ["Sci-Fi", "Drama"],
+  "rate": 7.8
+}
+
+### update one properti of the movie
+PATCH http://localhost:4000/movies/8a8c5072-a532-11ee-bed6-7085c2b8a4b3
+Content-Type: application/json
+
+{
+  "rate": 2,  
+  "genre": ["Sci-Fi", "Adventure", "Action"]
+}
+
+### update all the movie
+# PUT http://localhost:4000/movies/dcdd0fad-a94c-4810-8acc-5f108d3b18c3
+# Content-Type: application/json
+
+# {
+#   "rate": 3,
+#   "duration": 60
+# }
+
+### delete movie
+
+DELETE  http://localhost:4000/movies/8a8c5072-a532-11ee-bed6-7085c2b8a4b3
+
+
+###
+GET https://jsonplaceholder.typicode.com/posts/1
+
+###
+GET https://jsonplaceholder.typicode.com/posts
+
+###
+
+POST  https://jsonplaceholder.typicode.com/posts
+Content-type: application/json; charset=UTF-8
+
+{
+  "tiasdsdsdsdsdsdsdsdsdsdsdtle": {"a":1}
+  
+}
+###
+
+PUT  https://jsonplaceholder.typicode.com/posts/a
+Content-type: application/json; charset=UTF-8
+
+{
+  
+  "tiasdsdsdsdsdsdsdsdsdsdsdtle": 1,
+  "54": 45,
+    "id": 10
+  
+}
+
+###
+DELETE  https://jsonplaceholder.typicode.com/posts/1

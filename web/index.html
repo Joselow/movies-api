@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    * {
+      font-family: 'SanSerif', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    header{
+      margin: 1em 0;
+      display: flex;
+      justify-content: center;
+      gap: 1em;
+    }
+    header button {
+      font-size: large;
+    }
+    main {
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+    }
+
+    article {
+      padding: 1em;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      margin: 10px;
+      overflow: hidden;
+      transition: transform 0.3s ease-in-out;
+      width: 300px;
+    }
+
+    article:hover {
+      transform: scale(1.05);
+    }
+
+    img {
+      width: 100%;
+      height: auto;
+      border-bottom: 1px solid #ddd;
+    }
+
+    h2 {
+      font-size: 1.5em;
+      margin: 10px;
+    }
+
+    p {
+      color: #666;
+      font-size: 1em;
+      margin: 10px;
+    }
+    button{
+      cursor: pointer;
+      background-color: rgb(248, 89, 232);
+      border-radius: 10px;
+      padding: 4px 15px;
+      border: none;
+      font-weight: 400;
+    }
+    button:hover{
+      background-color: rgba(248, 89, 232, 0.885);
+    }
+    input, select{
+      /* background-color: rgb(248, 89, 232); */
+      border-radius: 10px;
+      padding: 4px 15px;
+      border: none;
+      font-weight: 400;
+    }
+
+
+    .container-btns{
+      display: flex;
+      justify-content: space-evenly;
+    }
+
+    h1{
+      text-align: center;
+    }
+
+    section{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .5em;
+    }
+    section input{
+    width: 30vw;
+    }
+    section div{
+      display: flex;
+      justify-content: space-around;
+      gap: .5em;
+    }
+    .btn-create{
+      font-weight: bolder;
+      background-color: rgb(18, 206, 206);
+    }
+    .btn-create:hover{
+      background-color: rgba(112, 233, 233, 0.829);
+    }
+    .btn-update{
+      background-color: rgb(246, 224, 60);
+    }
+    .btn-update:hover{
+      background-color: rgb(254, 195, 0);
+    }
+    .btn-delete{
+      background-color: rgb(209, 63, 97);
+    }
+    .btn-delete:hover{
+      background-color:rgb(202, 7, 52);
+    }
+    @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #1c1b1b;
+      color: #ffffff;
+    }
+  }
+  
+  </style>
+  <script type="module">
+    const container = document.getElementsByTagName('main')
+    fetch('http://localhost:4000/movies')
+    .then(res => res.json())
+    .then(movies => {
+      const fragment = document.createDocumentFragment()
+      movies.forEach(movie => {        
+        const article = document.createElement('article')
+        const title = document.createElement('h2')
+        const descripotion = document.createElement('p')
+        const img = document.createElement('img')
+        const containerButtons = document.createElement('div')
+        const buttonUpdate= document.createElement('button')
+        const buttonDelete = document.createElement('button')
+
+        img.src = movie.poster
+        title.innerText = movie.title
+        descripotion.innerText = `${movie.director} ${movie.genre} , ${movie.year}`
+        containerButtons.className = 'container-btns'
+        buttonDelete.className = 'btn-delete'
+        buttonUpdate.className = 'btn-update'
+        buttonDelete.innerText = 'Delete'
+        buttonUpdate.innerText = 'Update'
+
+        buttonDelete.addEventListener('click', (e) => {
+          fetch('http://localhost:4000/movies/'+movie.id, {
+            method: "DELETE",
+          })
+          .then(res => {
+            if(res.ok) article.remove()
+          })         
+      })
+        containerButtons.append(buttonUpdate, buttonDelete)
+        article.append(title, img, descripotion, containerButtons)
+        fragment.appendChild(article)
+      });
+      container[0].appendChild(fragment)
+      
+    })
+  </script>
+</head>
+<body>
+  <header>
+    <h1>Movies Management </h1>
+    <button class="btn-create" title="create movie">+</button>
+  </header>
+  
+
+  <section>
+    <input type="text" placeholder="Search: The Matrix, Leonidas,Titanic...">
+  <!-- </section>
+  <section> -->
+    <div>
+      <label for="genre">Searh by Genre</label> <br>
+      <select name="genre" id="">
+        <option value="">AEAA</option>
+        <option value="">AEA</option>
+        <option value="">AEA</option>
+      </select>
+      <button>Search By</button>
+    </div>
+
+    
+  </section>
+  <main></main>
+</body>
+</html>
