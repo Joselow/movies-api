@@ -1,13 +1,14 @@
-// import { Movie } from '../models/Movie.js'
-import { Movie } from '../models/mysql/movie.js'
 import { validationPatchMovie, validationPostMovie } from '../movieEschema.js'
 
 export class MovieController {
-  static async getAll (req, res) {
-    // res.header('Access-control-allow-origin', '*')
+  constructor ({ MovieModel }) {
+    this.movieModel = new MovieModel()
+  }
+
+  getAll = async (req, res) => {
     const { gender } = req.query
     try {
-      const movies = await new Movie().getAll({ gender })
+      const movies = await this.movieModel.getAll({ gender })
       if (movies.length) {
         return res.json(movies)
       }
@@ -23,10 +24,10 @@ export class MovieController {
     }
   }
 
-  static async getById (req, res) {
+  async getById (req, res) {
     const { id } = req.params
     try {
-      const movieFound = await new Movie().getById({ id })
+      const movieFound = await this.movieModel.getById({ id })
       if (movieFound) {
         return res.json(movieFound)
       }
@@ -48,13 +49,13 @@ export class MovieController {
     }
   }
 
-  static async create (req, res) {
+  async create (req, res) {
     const result = validationPostMovie(req.body)
     try {
       if (result.error) {
         return res.status(402).json({ error: JSON.parse(result.error.message) })
       }
-      const newMovie = await new Movie().create({ request: result.data })
+      const newMovie = await this.movieModel.create({ request: result.data })
       if (newMovie) {
         return res.status(201).json(newMovie)
       }
@@ -70,7 +71,7 @@ export class MovieController {
     }
   }
 
-  static async update (req, res) {
+  async update (req, res) {
     const { id } = req.params
     const result = validationPatchMovie(req.body)
 
@@ -79,7 +80,7 @@ export class MovieController {
         return res.status(404).json({ message: JSON.parse(result.error.message) })
       }
 
-      const movieUpdated = await new Movie().update({ id, request: result.data })
+      const movieUpdated = await this.movieModel.update({ id, request: result.data })
 
       if (!movieUpdated) {
         return res.status(404).json({ message: 'Movie not found' })
@@ -99,11 +100,10 @@ export class MovieController {
     }
   }
 
-  static async delete (req, res) {
-    // res.header('Access-control-allow-origin', '*')
+  async delete (req, res) {
     try {
       const { id } = req.params
-      const deleted = await new Movie().delete({ id })
+      const deleted = await this.movieModel.delete({ id })
       if (deleted) {
         return res.status(204).json({ message: 'deleted' })
       }

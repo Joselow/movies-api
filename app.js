@@ -1,24 +1,26 @@
 import express, { json } from 'express'
-import { router } from './routes/movies.js'
+import { createMovieRouter } from './routes/movies.js'
 import { corsMiddleware } from './middlewares/cors.js'
 
-const app = express()
+export function createApp ({ MovieModel }) {
+  const app = express()
 
-app.disable('x-powered-by')
-app.use(json())
-app.use(corsMiddleware())
+  app.disable('x-powered-by')
+  app.use(json())
+  app.use(corsMiddleware())
 
-app.use('/movies', router)
+  app.use('/movies', createMovieRouter({ MovieModel }))
 
-app.get('/', (req, res) => {
-  res.json({ hola: 'holla' })
-})
+  app.get('/', (req, res) => {
+    res.json({ hola: 'holla' })
+  })
 
-const PORT = process.env.PORT ?? 4000
+  const PORT = process.env.PORT ?? 4000
 
-app.listen(PORT, () => {
-  console.log(`puerto en http://localhost:${PORT}`)
-})
+  app.listen(PORT, () => {
+    console.log(`puerto en http://localhost:${PORT}`)
+  })
+}
 
 // app.options('/movies/:id', (req, res) => {
 //   res.header('Access-Control-Allow-Origin', '*')

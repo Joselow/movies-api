@@ -1,10 +1,10 @@
-import { importJson } from '../utils/requireImport.js'
+import { importJson } from '../../utils/requireImport.js'
 import { randomUUID } from 'node:crypto'
 
 const movies = importJson('./movies.json')
 
 export class Movie {
-  static async getAll ({ gender }) { // asincrono para cubrir todas las posibilidades
+  async getAll ({ gender }) { // asincrono para cubrir todas las posibilidades
     if (gender) {
       const moviesFound = movies.filter((movie) => (
         movie.genre.some(gen => gen.toLowerCase() === gender.toLowerCase())
@@ -17,12 +17,12 @@ export class Movie {
     return movies
   }
 
-  static async getById ({ id }) {
+  async getById ({ id }) {
     const movieFound = movies.find(el => el.id === id)
     return movieFound
   }
 
-  static async create ({ request }) {
+  async create ({ request }) {
     const newMovie = {
       id: randomUUID(),
       ...request
@@ -32,7 +32,7 @@ export class Movie {
     return newMovie
   }
 
-  static async update ({ id, request }) {
+  async update ({ id, request }) {
     const indexMovie = movies.findIndex(el => el.id === id)
 
     if (indexMovie === -1) {
@@ -42,7 +42,7 @@ export class Movie {
     return movies[indexMovie]
   }
 
-  static async delete ({ id }) {
+  async delete ({ id }) {
     const indexMovie = movies.findIndex(el => el.id === id)
     if (indexMovie === -1) {
       return false

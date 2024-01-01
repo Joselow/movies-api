@@ -2,7 +2,7 @@
 GET http://localhost:4000/movies
 
 ### get movie by id
-GET http://localhost:4000/movies/8a8c5072-a532-11ee-bed6-7085c2b8a4b3
+GET http://localhost:4000/movies/e712c42e-a8df-11ee-9c82-7085c2b8a4b3
 
 ### get movies by gender
 GET http://localhost:4000/movies?gender=Sci-fi
@@ -13,7 +13,7 @@ Content-Type: application/json
 
 {
   "sql": "owoo",      
-  "title": "Galactic Exploraers",
+  "title": "aea Exploraers",
   "year": 2023,
   "director": "Samuel Chang",
   "duration": 155,
