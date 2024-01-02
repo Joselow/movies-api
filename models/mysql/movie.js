@@ -1,39 +1,46 @@
-import mysql from 'mysql2/promise'
+// import mysql from 'mysql2/promise'
 import { InvalidUUIDError } from '../../Errors/InvalidUUIDError.js'
-
-const config = {
-  host: 'localhost',
-  user: 'root',
-  port: 3306,
-  password: '',
-  database: 'moviesdb'
-}
+import { connection } from './connection.js'
+// const config = {
+//   host: 'localhost',
+//   user: 'root',
+//   port: 3306,
+//   password: '',
+//   database: 'moviesdb'
+// }
 
 const data = 'BIN_TO_UUID(movies.id) as id, movies.title, movies.year, movies.director, movies.duration, movies.poster, movies.rate'
 
-let connection
-let successConnection = false;
+// let connection
+// let successConnection = false;
 
-(async ({ delay = 5000 }) => { // -- función autoinvocada
-  while (!successConnection) {
-    try {
-      connection = await mysql.createConnection(config)
-      successConnection = true
-      console.log('Conexion establecida correctamente')
-    } catch (error) {
-      console.log('Error al conectar con la base de datos:', error.code)
-      successConnection = false
-      await new Promise(resolve => setTimeout(resolve, delay))
-    }
-  }
-})({})
+// (async ({ delay = 5000 }) => { // -- función autoinvocada
+//   while (!successConnection) {
+//     try {
+//       connection = await mysql.createConnection(config)
+//       successConnection = true
+//       console.log('Conexion establecida correctamente')
+//     } catch (error) {
+//       console.log('Error al conectar con la base de datos:', error.code)
+//       successConnection = false
+//       await new Promise(resolve => setTimeout(resolve, delay))
+//     }
+//   }
+// })({})
 
 export class Movie {
-  async getAll ({ gender }) {
+  async getAll ({ gender, search }) {
+    if (gender && search) {
+      return await this.getMoviesByParams({ gender, search, data })
+    }
+
     if (gender) {
       return await this.getMoviesByGenre({ gender, data })
     }
 
+    if (search) {
+      return await this.getMoviesBySearch({ search, data })
+    }
     return await this.getAllMovies({ data })
   }
 
@@ -179,6 +186,64 @@ export class Movie {
       return movies
     } catch (error) {
       throw new Error('Does not posible get the movies')
+    }
+  }
+
+  async getMoviesByParams ({ search, genre, data }) {
+    try {
+      const [moviesValue] = await connection.query(`
+        SELECT
+          ${data},
+          JSON_ARRAYAGG(genres.name) AS genre
+        FROM movies
+        JOIN movies_genres 
+          ON movies.id = movies_genres.movie_id
+        JOIN genres 
+          ON movies_genres.genre_id = genres.id
+        WHERE
+          movies.id IN (
+            SELECT DISTINCT movie_id
+            FROM movies_genres
+            WHERE genre_id = (
+              SELECT id
+              FROM genres
+              WHERE name = ?
+            )
+          )
+        AND 
+          movies.title LIKE ? OR movies.director LIKE ?
+        GROUP BY
+          movies.id, movies.title;
+        `, [genre, `%${search}%`, `%${search}%`])
+
+      return moviesValue
+    } catch (error) {
+      console.log(error)
+      throw new Error('server crashed')
+    }
+  }
+
+  async getMoviesBySearch ({ search, data }) {
+    try {
+      const [moviesValue] = await connection.query(`
+      SELECT
+        ${data},
+        JSON_ARRAYAGG(genres.name) AS genre
+      FROM movies
+      JOIN movies_genres 
+        ON movies.id = movies_genres.movie_id
+      JOIN genres 
+        ON movies_genres.genre_id = genres.id
+      WHERE
+        movies.title LIKE ? OR movies.director LIKE ?
+      GROUP BY
+        movies.id, movies.title;
+    `, [`%${search}%`, `%${search}%`])
+
+      return moviesValue
+    } catch (error) {
+      console.log(error)
+      throw new Error('server crashed')
     }
   }
 

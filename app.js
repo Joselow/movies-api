@@ -1,15 +1,24 @@
 import express, { json } from 'express'
 import { createMovieRouter } from './routes/movies.js'
 import { corsMiddleware } from './middlewares/cors.js'
+import { createGenderRouter } from './routes/genders.js'
 
-export function createApp ({ MovieModel }) {
+export function createApp ({ MovieModel, GenderModel }) {
   const app = express()
 
   app.disable('x-powered-by')
   app.use(json())
   app.use(corsMiddleware())
 
-  app.use('/movies', createMovieRouter({ MovieModel }))
+  if (MovieModel) {
+    const movieRouter = createMovieRouter({ MovieModel })
+    app.use('/movies', movieRouter)
+  }
+
+  if (GenderModel) {
+    const genderRouter = createGenderRouter({ GenderModel })
+    app.use('/genders', genderRouter)
+  }
 
   app.get('/', (req, res) => {
     res.json({ hola: 'holla' })

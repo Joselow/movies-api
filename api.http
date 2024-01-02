@@ -1,3 +1,5 @@
+### get all genders
+GET http://localhost:4000/genders
 ### get all movies
 GET http://localhost:4000/movies
 
@@ -5,7 +7,7 @@ GET http://localhost:4000/movies
 GET http://localhost:4000/movies/e712c42e-a8df-11ee-9c82-7085c2b8a4b3
 
 ### get movies by gender
-GET http://localhost:4000/movies?gender=Sci-fi
+GET http://localhost:4000/movies?search=Samuel Chang&gender=Sci-fi
 
 ### create a movie
 POST http://localhost:4000/movies

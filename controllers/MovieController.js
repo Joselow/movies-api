@@ -6,9 +6,9 @@ export class MovieController {
   }
 
   getAll = async (req, res) => {
-    const { gender } = req.query
+    const { gender, search } = req.query
     try {
-      const movies = await this.movieModel.getAll({ gender })
+      const movies = await this.movieModel.getAll({ gender, search })
       if (movies.length) {
         return res.json(movies)
       }

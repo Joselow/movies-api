@@ -86,7 +86,7 @@
       text-align: center;
     }
 
-    section{
+    form{
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -119,19 +119,157 @@
     .btn-delete:hover{
       background-color:rgb(202, 7, 52);
     }
+    .cancel-search {
+      background-color: rgb(209, 63, 97);
+      color: #fff;
+    }
+    .cancel-search:hover {
+      background-color:rgb(251, 2, 60);
+      color: #fff;
+    }
     @media (prefers-color-scheme: dark) {
     body {
       background-color: #1c1b1b;
       color: #ffffff;
+    }
+    .container-error{
+      background-color: red;
+      border-radius: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      position: absolute;
+      padding: .3em .6em;
+      color: #1c1b1b;
+      font-weight: 5  00;
+      text-align: center;
+      display: none;
     }
   }
   
   </style>
   <script type="module">
     const container = document.getElementsByTagName('main')
-    fetch('http://localhost:4000/movies')
-    .then(res => res.json())
-    .then(movies => {
+    const selectForm = document.getElementById('form-search')
+    const btnCancelSearch = document.querySelector('.cancel-search')
+    const inputSearch = document.getElementById('input-search')
+    const select = document.querySelector('#genres')
+
+    function fnDebounce (fn, delay = 200) { 
+      let timeout               
+      return function () {      
+        const self = this
+        const arg = arguments
+        clearTimeout(timeout)
+
+        return new Promise((resolve) => {
+          timeout = setTimeout(async() => {
+            const result = await fn.apply(self, arg)
+            resolve(result)
+          }, delay)
+        })
+      }
+    }
+
+    inputSearch.addEventListener('input', async(e) => {
+      const value = e.target.value
+      const movies = await fetchMoviesDebouced({search: value})
+      if (movies?.error) {     
+        showMovies({movies: []})        
+      } else {
+        showMovies({movies})        
+      }
+    })
+
+    btnCancelSearch.addEventListener('click', async(e) => {
+      if( !select.value && !inputSearch.value ) return
+
+      select.value = ''
+      inputSearch.value = ''
+      const valueSelect = select.value
+      const valueinput = inputSearch.value
+      const movies = await fetchMovies({search: ''})
+      if (movies?.error) {      
+        showMovies({movies: []})        
+      } else {
+        showMovies({movies})        
+      }
+    })
+
+    let beforeSearh = ''
+    selectForm.addEventListener('submit', async(e) => {
+      e.preventDefault();
+      const valueinput = inputSearch.value
+      
+      const form = new FormData(e.target)
+      const { query } = Object.fromEntries(form)      
+      if ((!valueinput) || beforeSearh === query  ) return
+      beforeSearh = query
+      const movies = await fetchMovies({search: query})
+      if (movies?.error) {      
+        showMovies({movies: []})
+        
+      } else {
+        showMovies({movies})        
+      }
+    })
+
+    select.addEventListener('change', async(e) => {
+      const value = select.value;
+      const movies = await fetchMovies({gender:value})
+      if (movies?.error) {      
+        showMovies({movies: []})
+        
+      } else {
+        showMovies({movies})        
+      }
+      
+      console.log(value);      
+    })
+
+    const fetchGenders = async() => {
+    try {      
+      const responseJson = await fetch('http://localhost:4000/genders')
+      const genders = await responseJson.json()      
+      return genders
+    } catch (error) { 
+      const ce = document.querySelector('.container-error')
+      ce.style.display = 'block'
+
+      ce.innerHTML = 'Sorry, in this moment something is bad'
+    }}
+
+    const showGenders = ({genders}) => {
+      genders.forEach(gender => {          
+        const option = document.createElement('option')
+        option.value = gender.name
+        option.innerText = gender.name
+        select.appendChild(option)
+      })
+    }
+    fetchGenders().then(genders => showGenders({genders}))
+
+    const fetchMovies = async({gender = '', search = ''}) => {
+      try {      
+        const responseJson = await fetch(`http://localhost:4000/movies?gender=${gender}&search=${search}`)
+        const movies = await responseJson.json()      
+        return movies
+      } catch (error) {
+        const ce = document.querySelector('.container-error')
+      ce.style.display = 'block'
+
+      ce.innerHTML = 'Sorry, in this moment something is bad'
+      }
+    }
+
+    const showMovies = ({movies}) => {
+      if (!movies.length) {
+        container[0].innerHTML = ''
+        const span = document.createElement('span')
+        span.innerText = 'There aren\'t movies'
+        container[0].append(span)
+        return
+      }
+      container[0].innerHTML = '' 
       const fragment = document.createDocumentFragment()
       movies.forEach(movie => {        
         const article = document.createElement('article')
@@ -164,32 +302,37 @@
         fragment.appendChild(article)
       });
       container[0].appendChild(fragment)
-      
-    })
+    }
+
+    fetchMovies({}).then(movies => showMovies({movies}))
+
+    const fetchMoviesDebouced = fnDebounce( fetchMovies , 400)
+
   </script>
 </head>
 <body>
-  <header>
+  <div class="container-error">        
+  </div>
+  <header class="">
     <h1>Movies Management </h1>
     <button class="btn-create" title="create movie">+</button>
   </header>
   
 
   <section>
-    <input type="text" placeholder="Search: The Matrix, Leonidas,Titanic...">
-  <!-- </section>
-  <section> -->
-    <div>
-      <label for="genre">Searh by Genre</label> <br>
-      <select name="genre" id="">
-        <option value="">AEAA</option>
-        <option value="">AEA</option>
-        <option value="">AEA</option>
-      </select>
-      <button>Search By</button>
-    </div>
-
-    
+    <form action="" id="form-search">
+      <section>
+        <input id="input-search" name="query" type="text" placeholder="Search: The Matrix, Leonidas,Titanic...">
+        <button class="cancel-search" type="button">X</button>
+      </section>
+      <div>
+        <label for="genre">Searh by Genre</label> <br>
+        <select name="genre" id="genres">
+          <option selected value="">Selecciona un genero</option>    
+        </select>
+        <button>Search By</button>
+      </div> 
+    </form> 
   </section>
   <main></main>
 </body>
