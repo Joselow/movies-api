@@ -2,7 +2,7 @@ import { validationPatchMovie, validationPostMovie } from '../movieEschema.js'
 
 export class MovieController {
   constructor ({ MovieModel }) {
-    this.movieModel = new MovieModel()
+    this.movieModel = MovieModel
   }
 
   getAll = async (req, res) => {

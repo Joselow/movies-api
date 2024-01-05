@@ -1,6 +1,6 @@
 export class GenderController {
   constructor ({ GenderModel }) {
-    this.genderModel = new GenderModel()
+    this.genderModel = GenderModel
   }
 
   async getAll (req, res) {
