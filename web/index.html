@@ -17,19 +17,121 @@
 
     const formRate = document.getElementById('rate')
     const formLabelRate = document.querySelector('.labelRate')
+    const selectFormPost = document.querySelector('.genders-select')
+
+    const titleModal = document.querySelector('#title-modal')
+    const textBtnModalConfimr = document.querySelector('#confirm-btn-modal')
+    
+    const movieSelected = { id: null }
+
+
+    btnCreateMovie.addEventListener('click', () => {
+      formMovie.reset()
+      titleModal.textContent = 'Create'
+    })
+
+    function openModal() {
+        document.getElementById("myModal").style.display = "block";        
+      }
+
+    function closeModal() {
+        document.getElementById("myModal").style.display = "none";
+      }
+      
+      window.openModal = openModal;
+      window.closeModal = closeModal
+
     formRate.addEventListener('input', (e) => {
       formLabelRate.innerText = e.target.value
     })
 
-    formMovie.addEventListener('submit', (e) => {
+    formMovie.addEventListener('submit', async(e) => {
       e.preventDefault()
       const form = new FormData(e.target)
       const { title, year,  gender, director, rate, duration, poster } = Object.fromEntries(form)
 
-      console.log( title, rate);
-
+      if (!title || !year || !gender || !director  || !rate || !duration || !poster)  {
+        alert('Complete all the fields please 😠 ')
+        return
+      }      
+      
+      if ( titleModal.textContent === 'Update' ) updateMovie( movieSelected.id, {title, year: Number(year), genre: [gender], director, rate: Number(rate), duration: Number(duration), poster})
+      else  createMovie({title, year: Number(year), genre: [gender], director, rate: Number(rate), duration: Number(duration), poster})
     })
-    // const s
+
+    const updateMovie = async (id, body) => {
+      try {
+        const response= await fetch('http://localhost:4000/movies/'+id, {
+        method: 'PATCH',
+        body: JSON.stringify(body),
+        // body: form, 
+        headers: {
+          "Content-Type": "application/json",
+        }      
+      })
+        const responseJson = await response.json()
+
+        if(responseJson.error){
+          let errors = ''
+          responseJson.error.forEach(err => {
+            errors += `<li><strong>✖️ ${err.path[0].toUpperCase()}: </strong>  ${err.message}</li>`
+          })
+
+          const ce = document.querySelector('.container-error')
+          ce.style.display = 'block'
+          ce.innerHTML = '<ul>'+errors+'</ul>'     
+          
+          setTimeout(() =>ce.style.display = 'none' , 6000)
+        } else {
+          closeModal()
+          alert('Movie Updated 😀')
+          getMovies()
+        }
+
+      } catch (error) {
+        const ce = document.querySelector('.container-error')
+        ce.style.display = 'block'
+
+        ce.innerHTML = 'Sorry, in this moment something is bad'
+      }
+    }
+    
+    const createMovie = async (bodyValue) => {
+      try {
+        const respose= await fetch('http://localhost:4000/movies',{
+        method: 'POST',
+        body: JSON.stringify(bodyValue),
+        // body: form, 
+        headers: {
+          "Content-Type": "application/json",
+        }      
+      })
+
+        const responseJson = await respose.json()
+
+        if(responseJson.error){
+          let errors = ''
+          responseJson.error.forEach(err => {
+            errors += `<li><strong>✖️ ${err.path[0].toUpperCase()}: </strong>  ${err.message}</li>`
+          })
+
+          const ce = document.querySelector('.container-error')
+          ce.style.display = 'block'
+          ce.innerHTML = '<ul>'+errors+'</ul>'     
+          
+          setTimeout(() =>ce.style.display = 'none' , 6000)
+        } else {
+          closeModal()
+          alert('Movie created 😀')
+          getMovies()
+        }
+      } catch (error) {
+        const ce = document.querySelector('.container-error')
+        ce.style.display = 'block'
+
+        ce.innerHTML = 'Sorry, in this moment something is bad'
+      }
+    }
 
     function fnDebounce (fn, delay = 200) { 
       let timeout               
@@ -48,8 +150,9 @@
     }
 
     inputSearch.addEventListener('input', async(e) => {
+      const genreValue = select.value
       const value = e.target.value
-      const movies = await fetchMoviesDebouced({search: value})
+      const movies = await fetchMoviesDebouced({search: value, gender: genreValue})
       if (movies?.error) {     
         showMovies({movies: []})        
       } else {
@@ -91,8 +194,9 @@
     })
 
     select.addEventListener('change', async(e) => {
+      const searchValue = inputSearch.value
       const value = select.value;
-      const movies = await fetchMovies({gender:value})
+      const movies = await fetchMovies({gender:value, search: searchValue})
       if (movies?.error) {      
         showMovies({movies: []})
         
@@ -106,13 +210,13 @@
     const fetchGenders = async() => {
       try {      
         const responseJson = await fetch('http://localhost:4000/genders')
-        if (!responseJson.ok) {
+        if (responseJson.status === 404) return []
+        else if (!responseJson.ok) {
             throw new Error(`Error: ${response.status} ${response.statusText}`);
         }        
         const genders = await responseJson.json()      
         return genders
       } catch (error) { 
-        console.log('aeaaaa');
         const ce = document.querySelector('.container-error')
         ce.style.display = 'block'
 
@@ -120,12 +224,16 @@
     }}
 
     const showGenders = ({genders}) => {
+      const frame = document.createDocumentFragment()
       genders.forEach(gender => {          
         const option = document.createElement('option')
         option.value = gender.name
         option.innerText = gender.name
-        select.appendChild(option)
+        frame.appendChild(option)
       })
+
+      select.appendChild(frame.cloneNode(true))
+      selectFormPost.appendChild(frame)
     }
 
     const getGenders = async () => {
@@ -139,8 +247,11 @@
     const fetchMovies = async({gender = '', search = ''}) => {
       try {      
         const responseJson = await fetch(`http://localhost:4000/movies?gender=${gender}&search=${search}`)
-        if (!responseJson.ok) {
-            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        if (responseJson.status === 404) {
+          return []
+        }
+        else if (!responseJson.ok) {
+          throw new Error(`Error: ${response.status} ${response.statusText}`);
         } 
 
         const movies = await responseJson.json()      
@@ -153,6 +264,8 @@
       }
     }
 
+    const propsForm = [ 'title', 'year',  'gender', 'director', 'rate', 'duration', 'poster' ]
+
     const showMovies = ({movies}) => {
       if (!movies.length) {
         container[0].innerHTML = ''
@@ -161,9 +274,12 @@
         container[0].append(span)
         return
       }
+
       container[0].innerHTML = '' 
       const fragment = document.createDocumentFragment()
-      movies.forEach(movie => {        
+      movies.forEach(movie => {     
+        const valueMovie = [ movie.title, movie.year, movie.genre[0], movie.director, movie.rate, movie.duration, movie.poster, ]
+        
         const article = document.createElement('article')
         const title = document.createElement('h2')
         const descripotion = document.createElement('p')
@@ -173,6 +289,7 @@
         const buttonDelete = document.createElement('button')
 
         img.src = movie.poster
+        img.alt = movie.title
         title.innerText = movie.title
         descripotion.innerText = `${movie.director} ${movie.genre} , ${movie.year}`
         containerButtons.className = 'container-btns'
@@ -180,6 +297,17 @@
         buttonUpdate.className = 'btn-update'
         buttonDelete.innerText = 'Delete'
         buttonUpdate.innerText = 'Update'
+        buttonUpdate.addEventListener('click', (e) => {
+          openModal()
+          movieSelected.id = movie.id
+          titleModal.textContent = 'Update'
+          propsForm.forEach((prop, index) => {
+            if (prop === 'rate') {
+              formLabelRate.textContent = valueMovie[index]
+            }
+            formMovie[prop].value = valueMovie[index]
+          })          
+        })   
 
         buttonDelete.addEventListener('click', (e) => {
           fetch('http://localhost:4000/movies/'+movie.id, {
@@ -211,36 +339,36 @@
   </script>
 </head>
 <body>
-
   <div id="myModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <section>
         <form id="form-movie" action="">
-          <h2>Create Mobie</h2>
+          <h2> <span id="title-modal">Create</span> Movie</h2>
           <div>
             <label for="title">Title</label>
             <input name="title" type="text" id="title">
           </div>
           <div>
-            <label for="duration">Duration</label>
-            <input name="duration" type="time" id="duration">
+            <label for="duration">Duration (min)</label>
+            <input name="duration" type="number" id="duration">
           </div>
           <div>          
             <label for="director">Director</label>
             <input name="director" type="text" id="director">
           </div>
           <div>
-            <label for="gender">Gender</label>
-            
-            <input name="gender" type="text" id="gender">
+            <label for="form-gender">Gender</label>
+            <select class="genders-select" name="gender" id="form-genres">
+              <option selected value="">Selecciona un genero</option>    
+            </select>
           </div>
           <div>
             <label for="year">Year</label>
-            <input name="year" type="text"  id="year">
+            <input type="number" id="year" name="year" min="1900" max="2100">
           </div>
           <div>
-            <label for="poster">Poster</label>
+            <label for="poster">Poster (url)</label>
             <input name="poster" type="text" id="poster">
           </div>
           <div>
@@ -248,33 +376,21 @@
             <input name="rate" type="range" id="rate" min="0" max="10" value="5">
           </div>
           <div>
-            <button>Save</button>
+            <button id="confirm-btn-modal">Save</button>
           </div>
         </form>
       </section>
     </div>
-    <script type="module">
-      function openModal() {
-        document.getElementById("myModal").style.display = "block";
-      }
-
-      function closeModal() {
-        document.getElementById("myModal").style.display = "none";
-      }
-      
-      window.openModal = openModal;
-      window.closeModal = closeModal
-    </script>
-</div>
-  <div class="container-error">        
   </div>
+  
+  <div class="container-error"></div>
+  
   <header class="">
     <h1>Movies Management </h1>
     <button class="btn-create" title="create movie"
       onclick="openModal()"
     >+</button>
   </header>
-  
 
   <section>
     <form action="" id="form-search">
@@ -284,13 +400,16 @@
       </section>
       <div>
         <label for="genres">Searh by Genre</label> <br>
-        <select name="genre" id="genres">
+        <select  name="genre" id="genres">
           <option selected value="">Selecciona un genero</option>    
         </select>
         <button>Search By</button>
       </div> 
     </form> 
   </section>
-  <main></main>
+  
+  <main>
+    <!-- Here the movies will be rendered -->
+  </main>
 </body>
 </html>

@@ -6,9 +6,15 @@
 header{
   margin: 1em 0;
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 1em;
 }
+
+header h1 {
+  padding: 0 0.1em;
+}
+
 header button {
   font-size: large;
 }
@@ -17,6 +23,15 @@ main {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+}
+
+article h2 {
+  text-align: center;
+  font-weight: 700;
+}
+
+article h2, article img {
+  color: #1c1b1b;
 }
 
 article {
@@ -127,6 +142,7 @@ body {
   color: #ffffff;
 }
 .container-error{
+  z-index: 9999999999999;
   background-color: red;
   border-radius: 10px;
   left: 50%;
@@ -142,7 +158,7 @@ body {
   margin-bottom: .5em;
 }
 #myModal {
-    display: none;
+  display: none;
     position: fixed;
     z-index: 1;
     left: 0;
@@ -156,7 +172,7 @@ body {
     overflow: auto;
     border-radius: 20px;
     background-color: #110437;
-    margin: 15% auto;
+    margin: 5em auto;
     padding: 20px;
     border: 1px solid #280a83;
     width: 80%;
