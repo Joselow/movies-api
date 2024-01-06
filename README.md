@@ -1,14 +1,15 @@
-API Movies
+# API Movies
+
 Bienvenido a la API de Movies. Este proyecto te permite gestionar información sobre películas y géneros. A continuación, encontrarás los pasos para instalar, configurar y ejecutar la API.
 
-Instalación
-Clonar el Repositorio:
+## Instalación
 
-bash
-Copy code
-git clone https://github.com/Joselow/movies-api.git
-cd tu-proyecto
-npm install
+1. **Clonar el Repositorio:**
+   ```bash
+   git clone https://github.com/Joselow/movies-api.git
+   cd tu-proyecto
+   npm install
+
 Configuración de la Base de Datos:
 
 Crea una base de datos en MySQL.
