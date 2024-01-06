@@ -21,9 +21,7 @@ env
    DB_PASSWORD=tu-contraseña
    DB_DATABASE=tu-base-de-datos
 
- 2.  **Ejecución del Servidor:**
-Ejecuta el servidor con el siguiente comando:
-1. **Clonar el Repositorio:**
+2. **Ejecuta el servidor con el siguiente comando:**
    ```bash
     npm run dev:mysql
    
@@ -34,5 +32,6 @@ Abre el archivo web/index.html en tu navegador para realizar pruebas interactiva
 Instala la extensión REST Client en Visual Studio Code.
 Haz clic en "Send Request" que se encuentra sobre cada ruta en el archivo api.http.
 
+##  😀
 
 ¡Gracias por utilizar la API Movies! Si tienes alguna pregunta o encuentras algún problema, no dudes en contactarnos. ¡Disfruta gestionando tu colección de películas! 😊
