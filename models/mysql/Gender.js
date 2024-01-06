@@ -8,7 +8,6 @@ export class Gender {
       )
       return genders
     } catch (error) {
-      console.log(error)
       throw new Error('server crashed')
     }
   }
