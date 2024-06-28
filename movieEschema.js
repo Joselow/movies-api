@@ -22,8 +22,8 @@ const movieScheme = zod.object({
 })
 
 const validationPostMovie = (object) => {
-  // return movieScheme.parse(object) // -- valida la data
-  return movieScheme.safeParse(object) // -- valida y te da un error o los datos
+  // return movieScheme.parse(object) // -- valida la data, tira un error
+  return movieScheme.safeParse(object) // -- valida y te da un error o los datos, no tira error
 }
 
 const validationPatchMovie = (object) => {

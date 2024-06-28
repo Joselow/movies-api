@@ -19,9 +19,14 @@ env
    DB_HOST=tu-host
    DB_USER=tu-usuario
    DB_PASSWORD=tu-contraseña
-   DB_DATABASE=tu-base-de-datos
+   DB_DATABASE=tu-base-de-datos      recomended name: moviesdb
+ 
+2. ** Inserta el archivo SQL --> database.sql a tu base de datos 
+  Cambia el nombre de la base de datos si es necesario.
 
-2. **Ejecuta el servidor con el siguiente comando:**
+3. ** Activa el servidor de tu db
+
+4. **Ejecuta el servidor con el siguiente comando:**
    ```bash
     npm run dev:mysql
    

@@ -55,6 +55,7 @@ export class Movie {
     try {
       const [uuidResult] = await connection.query('SELECT UUID() uuid')
       const [{ uuid }] = uuidResult
+
       await connection.query(
       `INSERT INTO movies (id, title, year, director, duration, poster, rate) VALUES 
         (UUID_TO_BIN("${uuid}"), ?, ?, ?, ?, ?, ?);
@@ -185,6 +186,7 @@ export class Movie {
       `)
       return movies
     } catch (error) {
+      console.log(error)
       throw new Error('Does not posible get the movies')
     }
   }

@@ -8,9 +8,6 @@ const ACCEPTED_ORIGINS_VALUES = [
 ]
 
 const ACCEPTED_ORIGINS = process.env.ORIGIN_ACCEPTED || ACCEPTED_ORIGINS_VALUES
-
-console.log(ACCEPTED_ORIGINS)
-
 export const corsMiddleware = ({ acceptedOtigins = ACCEPTED_ORIGINS } = {}) => cors({
   origin: (origin, callback) => {
     if (acceptedOtigins === '*') {
